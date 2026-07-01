@@ -1,0 +1,11 @@
+{
+	"id": "jw-relink",
+	"name": "JW Relink",
+	"version": "1.0.0",
+	"minAppVersion": "1.0.0",
+	"description": "Tranforms links from JW.ORG to JW Library compatible ones.",
+	"author": "Floydv149",
+	"authorUrl": "https://obsidian.md",
+	"fundingUrl": "https://obsidian.md/pricing",
+	"isDesktopOnly": false
+}
