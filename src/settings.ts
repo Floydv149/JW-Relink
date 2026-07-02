@@ -2,11 +2,11 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import JWRelink from './main';
 
 export interface JWRelinkSettings {
-	mySetting: string;
+	removeAllParams: boolean;
 }
 
 export const DEFAULT_SETTINGS: JWRelinkSettings = {
-	mySetting: 'default',
+	removeAllParams: false,
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -21,5 +21,17 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
+
+		new Setting(containerEl)
+			.setName('Remove unnecessary parameters from URL')
+			.setDesc('! Does not work with Windows !')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.removeAllParams)
+					.onChange(async (value) => {
+						this.plugin.settings.removeAllParams = value;
+						await this.plugin.saveData(this.plugin.settings);
+					}),
+			);
 	}
 }

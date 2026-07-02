@@ -1,13 +1,13 @@
 import { Editor, MarkdownView, Plugin, Notice } from 'obsidian';
-// import { DEFAULT_SETTINGS, JWRelinkSettings, SettingTab } from './settings';
+import { DEFAULT_SETTINGS, JWRelinkSettings, SettingTab } from './settings';
 
 // Remember to rename these classes and interfaces!
 
 export default class JWRelink extends Plugin {
-	// settings!: JWRelinkSettings;
+	settings!: JWRelinkSettings;
 
 	async onload() {
-		// await this.loadSettings();
+		await this.loadSettings();
 
 		// This creates an icon in the left ribbon.
 		this.addRibbonIcon(
@@ -37,10 +37,24 @@ export default class JWRelink extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		// this.addSettingTab(new SettingTab(this.app, this));
+		this.addSettingTab(new SettingTab(this.app, this));
 
 		const transformJWORGLinkToJWLibraryLink = (editor: Editor) => {
-			const input = editor.getSelection();
+			const input =
+				editor.getSelection().length > 0
+					? editor.getSelection()
+					: editor.getLine(editor.getCursor().line);
+
+			if (editor.getSelection().length == 0) {
+				editor.setSelection(
+					{ line: editor.getCursor().line, ch: 0 },
+					{
+						line: editor.getCursor().line,
+						ch: editor.getLine(editor.getCursor().line).length,
+					},
+				);
+			}
+
 			const output = transformLink(input);
 			editor.replaceSelection(output);
 		};
@@ -49,11 +63,14 @@ export default class JWRelink extends Plugin {
 			let output: string = input.toString();
 
 			output = output.replaceAll('https://www.jw.org/', 'jwlibrary:///');
-			// output = output.replaceAll('srcid=jwlshare&', '');
-			// output = output.replaceAll('prefer=lang&', '');
-			// output = output.replaceAll('&srctype=wol&srcid=share', '');
-			// output = output.replaceAll('wtlocale=O&', '');
-			// output = output.replaceAll('&pub=nwtsty', '');
+
+			if (this.settings.removeAllParams) {
+				output = output.replaceAll('srcid=jwlshare&', '');
+				output = output.replaceAll('prefer=lang&', '');
+				output = output.replaceAll('&srctype=wol&srcid=share', '');
+				output = output.replaceAll('wtlocale=O&', '');
+				output = output.replaceAll('&pub=nwtsty', '');
+			}
 
 			return output;
 		};
@@ -61,15 +78,15 @@ export default class JWRelink extends Plugin {
 
 	onunload() {}
 
-	// async loadSettings() {
-	// 	this.settings = Object.assign(
-	// 		{},
-	// 		DEFAULT_SETTINGS,
-	// 		(await this.loadData()) as Partial<JWRelinkSettings>,
-	// 	);
-	// }
+	async loadSettings() {
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			(await this.loadData()) as Partial<JWRelinkSettings>,
+		);
+	}
 
-	// async saveSettings() {
-	// 	await this.saveData(this.settings);
-	// }
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
 }
